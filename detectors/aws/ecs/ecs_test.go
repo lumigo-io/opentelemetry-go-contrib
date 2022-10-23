@@ -47,7 +47,7 @@ func (detectorUtils *MockDetectorUtils) getContainerName() (string, error) {
 	return args.String(0), args.Error(1)
 }
 
-// succesfully returns resource when process is running on Amazon ECS environment
+// successfully returns resource when process is running on Amazon ECS environment
 // with no Metadata v4.
 func TestDetectV3(t *testing.T) {
 	os.Clearenv()
@@ -71,7 +71,7 @@ func TestDetectV3(t *testing.T) {
 	assert.Equal(t, expectedResource, res, "Resource returned is incorrect")
 }
 
-// succesfully returns resource when process is running on Amazon ECS environment
+// successfully returns resource when process is running on Amazon ECS environment
 // with Metadata v4 with the EC2 Launch type.
 func TestDetectV4LaunchTypeEc2(t *testing.T) {
 	testServer := httptest.NewServer(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
@@ -122,7 +122,7 @@ func TestDetectV4LaunchTypeEc2(t *testing.T) {
 	assert.Equal(t, expectedResource, res, "Resource returned is incorrect")
 }
 
-// succesfully returns resource when process is running on Amazon ECS environment
+// successfully returns resource when process is running on Amazon ECS environment
 // with Metadata v4 with the Fargate Launch type.
 func TestDetectV4LaunchTypeFargate(t *testing.T) {
 	testServer := httptest.NewServer(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {

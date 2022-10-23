@@ -43,13 +43,9 @@ var (
 	empty                                 = resource.Empty()
 	errCannotReadContainerID              = errors.New("failed to read container ID from cGroupFile")
 	errCannotReadContainerName            = errors.New("failed to read hostname")
-	errCannotReadCGroupFile               = errors.New("ECS resource detector failed to read cGroupFile")
-	errCannotRetrieveMetadataV4           = errors.New("ECS resource detector failed to retrieve metadata from the ECS Metadata v4 container endpoint")
-	errCannotRetrieveMetadataV4Task       = errors.New("ECS resource detector failed to retrieve metadata from the ECS Metadata v4 task endpoint")
-	errCannotRetrieveLogsGroupMetadataV4  = errors.New("The ECS Metadata v4 did not return a AwsLogGroup name")
-	errCannotRetrieveLogsStreamMetadataV4 = errors.New("The ECS Metadata v4 did not return a AwsLogStream name")
-	errCannotParseAwsRegionMetadataV4     = errors.New("Cannot parse the AWS region our of the Container ARN returned by the ECS Metadata v4 container endpoint")
-	errCannotParseAwsAccountMetadataV4    = errors.New("Cannot parse the AWS account our of the Container ARN returned by the ECS Metadata v4 container endpoint")
+	errCannotReadCGroupFile               = errors.New("the ECS resource detector failed to read cGroupFile")
+	errCannotRetrieveLogsGroupMetadataV4  = errors.New("the ECS Metadata v4 did not return a AwsLogGroup name")
+	errCannotRetrieveLogsStreamMetadataV4 = errors.New("the ECS Metadata v4 did not return a AwsLogStream name")
 )
 
 // Create interface for methods needing to be mocked.
