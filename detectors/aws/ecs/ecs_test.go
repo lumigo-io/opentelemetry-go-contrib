@@ -78,12 +78,18 @@ func TestDetectV4LaunchTypeEc2(t *testing.T) {
 		if strings.HasSuffix(req.URL.String(), "/task") {
 			content, err := os.ReadFile("testdata/metadatav4-response-task-ec2.json")
 			if err == nil {
-				res.Write(content)
+				_, err = res.Write(content)
+				if err != nil {
+					panic(err)
+				}
 			}
 		} else {
 			content, err := os.ReadFile("testdata/metadatav4-response-container-ec2.json")
 			if err == nil {
-				res.Write(content)
+				_, err = res.Write(content)
+				if err != nil {
+					panic(err)
+				}
 			}
 		}
 	}))
@@ -129,12 +135,18 @@ func TestDetectV4LaunchTypeFargate(t *testing.T) {
 		if strings.HasSuffix(req.URL.String(), "/task") {
 			content, err := os.ReadFile("testdata/metadatav4-response-task-fargate.json")
 			if err == nil {
-				res.Write(content)
+				_, err = res.Write(content)
+				if err != nil {
+					panic(err)
+				}
 			}
 		} else {
 			content, err := os.ReadFile("testdata/metadatav4-response-container-fargate.json")
 			if err == nil {
-				res.Write(content)
+				_, err = res.Write(content)
+				if err != nil {
+					panic(err)
+				}
 			}
 		}
 	}))
@@ -211,7 +223,10 @@ func TestDetectV4Parse(t *testing.T) {
 	content, _ := os.ReadFile("testdata/metadatav4-response-task.json")
 
 	taskMetadata := &ecsmetadata.TaskMetadataV4{}
-	json.Unmarshal(content, taskMetadata)
+	err := json.Unmarshal(content, taskMetadata)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // returns empty resource when process is not running ECS.
