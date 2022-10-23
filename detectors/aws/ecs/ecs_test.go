@@ -219,8 +219,18 @@ func TestDetectCannotReadContainerName(t *testing.T) {
 	assert.Equal(t, 0, len(res.Attributes()))
 }
 
-func TestDetectV4Parse(t *testing.T) {
-	content, _ := os.ReadFile("testdata/metadatav4-response-task.json")
+func TestDetectV4ParseFargate(t *testing.T) {
+	content, _ := os.ReadFile("testdata/metadatav4-response-task-fargate.json")
+
+	taskMetadata := &ecsmetadata.TaskMetadataV4{}
+	err := json.Unmarshal(content, taskMetadata)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func TestDetectV4ParseEc2(t *testing.T) {
+	content, _ := os.ReadFile("testdata/metadatav4-response-task-ec2.json")
 
 	taskMetadata := &ecsmetadata.TaskMetadataV4{}
 	err := json.Unmarshal(content, taskMetadata)
