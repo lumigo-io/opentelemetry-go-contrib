@@ -23,13 +23,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-
-	ecsmetadata "github.com/brunoscheufler/aws-ecs-metadata-go"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
+
+	ecsmetadata "github.com/brunoscheufler/aws-ecs-metadata-go"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 // Create interface for functions that need to be mocked.
