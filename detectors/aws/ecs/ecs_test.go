@@ -16,8 +16,6 @@ package ecs
 
 import (
 	"context"
-	"net/http"
-	"net/http/httptest"
 	"os"
 	"testing"
 
