@@ -17,7 +17,7 @@ package ecs
 import (
 	"context"
 	"encoding/json"
-	http "net/http"
+	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
@@ -96,7 +96,6 @@ func TestDetectV4LaunchTypeEc2(t *testing.T) {
 	defer testServer.Close()
 
 	os.Clearenv()
-	_ = os.Setenv(metadataV3EnvVar, "3")
 	_ = os.Setenv(metadataV4EnvVar, testServer.URL)
 
 	detectorUtils := new(MockDetectorUtils)
@@ -124,66 +123,65 @@ func TestDetectV4LaunchTypeEc2(t *testing.T) {
 	detector := &resourceDetector{utils: detectorUtils}
 	res, err := detector.Detect(context.Background())
 
-	assert.Equal(t, err, nil, "Detector should not file")
+	assert.Equal(t, err, nil, "Detector should not fail")
 	assert.Equal(t, expectedResource, res, "Resource returned is incorrect")
 }
 
 // successfully returns resource when process is running on Amazon ECS environment
 // with Metadata v4 with the Fargate Launch type.
-// func TestDetectV4LaunchTypeFargate(t *testing.T) {
-// 	testServer := httptest.NewServer(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-// 		if strings.HasSuffix(req.URL.String(), "/task") {
-// 			content, err := os.ReadFile("testdata/metadatav4-response-task-fargate.json")
-// 			if err == nil {
-// 				_, err = res.Write(content)
-// 				if err != nil {
-// 					panic(err)
-// 				}
-// 			}
-// 		} else {
-// 			content, err := os.ReadFile("testdata/metadatav4-response-container-fargate.json")
-// 			if err == nil {
-// 				_, err = res.Write(content)
-// 				if err != nil {
-// 					panic(err)
-// 				}
-// 			}
-// 		}
-// 	}))
-// 	defer testServer.Close()
+func TestDetectV4LaunchTypeFargate(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		if strings.HasSuffix(req.URL.String(), "/task") {
+			content, err := os.ReadFile("testdata/metadatav4-response-task-fargate.json")
+			if err == nil {
+				_, err = res.Write(content)
+				if err != nil {
+					panic(err)
+				}
+			}
+		} else {
+			content, err := os.ReadFile("testdata/metadatav4-response-container-fargate.json")
+			if err == nil {
+				_, err = res.Write(content)
+				if err != nil {
+					panic(err)
+				}
+			}
+		}
+	}))
+	defer testServer.Close()
 
-// 	os.Clearenv()
-// 	_ = os.Setenv(metadataV3EnvVar, "3")
-// 	_ = os.Setenv(metadataV4EnvVar, testServer.URL)
+	os.Clearenv()
+	_ = os.Setenv(metadataV4EnvVar, testServer.URL)
 
-// 	detectorUtils := new(MockDetectorUtils)
+	detectorUtils := new(MockDetectorUtils)
 
-// 	detectorUtils.On("getContainerName").Return("container-Name", nil)
-// 	detectorUtils.On("getContainerID").Return("0123456789A", nil)
+	detectorUtils.On("getContainerName").Return("container-Name", nil)
+	detectorUtils.On("getContainerID").Return("0123456789A", nil)
 
-// 	attributes := []attribute.KeyValue{
-// 		semconv.CloudProviderAWS,
-// 		semconv.CloudPlatformAWSECS,
-// 		semconv.ContainerNameKey.String("container-Name"),
-// 		semconv.ContainerIDKey.String("0123456789A"),
-// 		semconv.AWSECSContainerARNKey.String("arn:aws:ecs:us-west-2:111122223333:container/05966557-f16c-49cb-9352-24b3a0dcd0e1"),
-// 		semconv.AWSECSClusterARNKey.String("arn:aws:ecs:us-west-2:111122223333:cluster/default"),
-// 		semconv.AWSECSLaunchtypeKey.String("fargate"),
-// 		semconv.AWSECSTaskARNKey.String("arn:aws:ecs:us-west-2:111122223333:task/default/e9028f8d5d8e4f258373e7b93ce9a3c3"),
-// 		semconv.AWSECSTaskFamilyKey.String("curltest"),
-// 		semconv.AWSECSTaskRevisionKey.String("3"),
-// 		semconv.AWSLogGroupNamesKey.String("/ecs/containerlogs"),
-// 		semconv.AWSLogGroupARNsKey.String("arn:aws:logs:us-west-2:111122223333:log-group:/ecs/containerlogs:*"),
-// 		semconv.AWSLogStreamNamesKey.String("ecs/curl/cd189a933e5849daa93386466019ab50"),
-// 		semconv.AWSLogStreamARNsKey.String("arn:aws:logs:us-west-2:111122223333:log-group:/ecs/containerlogs:log-stream:ecs/curl/cd189a933e5849daa93386466019ab50"),
-// 	}
-// 	expectedResource := resource.NewWithAttributes(semconv.SchemaURL, attributes...)
-// 	detector := &resourceDetector{utils: detectorUtils}
-// 	res, err := detector.Detect(context.Background())
+	attributes := []attribute.KeyValue{
+		semconv.CloudProviderAWS,
+		semconv.CloudPlatformAWSECS,
+		semconv.ContainerNameKey.String("container-Name"),
+		semconv.ContainerIDKey.String("0123456789A"),
+		semconv.AWSECSContainerARNKey.String("arn:aws:ecs:us-west-2:111122223333:container/05966557-f16c-49cb-9352-24b3a0dcd0e1"),
+		semconv.AWSECSClusterARNKey.String("arn:aws:ecs:us-west-2:111122223333:cluster/default"),
+		semconv.AWSECSLaunchtypeKey.String("fargate"),
+		semconv.AWSECSTaskARNKey.String("arn:aws:ecs:us-west-2:111122223333:task/default/e9028f8d5d8e4f258373e7b93ce9a3c3"),
+		semconv.AWSECSTaskFamilyKey.String("curltest"),
+		semconv.AWSECSTaskRevisionKey.String("3"),
+		semconv.AWSLogGroupNamesKey.String("/ecs/containerlogs"),
+		semconv.AWSLogGroupARNsKey.String("arn:aws:logs:us-west-2:111122223333:log-group:/ecs/containerlogs:*"),
+		semconv.AWSLogStreamNamesKey.String("ecs/curl/cd189a933e5849daa93386466019ab50"),
+		semconv.AWSLogStreamARNsKey.String("arn:aws:logs:us-west-2:111122223333:log-group:/ecs/containerlogs:log-stream:ecs/curl/cd189a933e5849daa93386466019ab50"),
+	}
+	expectedResource := resource.NewWithAttributes(semconv.SchemaURL, attributes...)
+	detector := &resourceDetector{utils: detectorUtils}
+	res, err := detector.Detect(context.Background())
 
-// 	assert.Equal(t, err, nil, "Detector should not file")
-// 	assert.Equal(t, expectedResource, res, "Resource returned is incorrect")
-// }
+	assert.Equal(t, err, nil, "Detector should not fail")
+	assert.Equal(t, expectedResource, res, "Resource returned is incorrect")
+}
 
 // returns empty resource when detector cannot read container ID.
 func TestDetectCannotReadContainerID(t *testing.T) {
