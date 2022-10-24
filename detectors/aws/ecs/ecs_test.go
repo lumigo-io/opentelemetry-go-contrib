@@ -68,15 +68,6 @@ func TestDetectV3(t *testing.T) {
 	assert.Equal(t, expectedResource, res, "Resource returned is incorrect")
 }
 
-func TestGoOnWindowsSucks(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if _, err := w.Write([]byte("SUKA")); err != nil {
-			t.Fatal(err)
-		}
-	}))
-	defer ts.Close()
-}
-
 // returns empty resource when detector cannot read container ID.
 func TestDetectCannotReadContainerID(t *testing.T) {
 	os.Clearenv()
