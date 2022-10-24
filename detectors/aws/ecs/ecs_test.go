@@ -81,17 +81,23 @@ func TestGoOnWindowsSucks(t *testing.T) {
 func TestDetectCannotReadContainerID(t *testing.T) {
 	os.Clearenv()
 	_ = os.Setenv(metadataV3EnvVar, "3")
-	_ = os.Setenv(metadataV4EnvVar, "4")
 	detectorUtils := new(MockDetectorUtils)
 
 	detectorUtils.On("getContainerName").Return("container-Name", nil)
-	detectorUtils.On("getContainerID").Return("", errCannotReadContainerID)
+	detectorUtils.On("getContainerID").Return("", nil)
 
+	attributes := []attribute.KeyValue{
+		semconv.CloudProviderAWS,
+		semconv.CloudPlatformAWSECS,
+		semconv.ContainerNameKey.String("container-Name"),
+		semconv.ContainerIDKey.String(""),
+	}
+	expectedResource := resource.NewWithAttributes(semconv.SchemaURL, attributes...)
 	detector := &resourceDetector{utils: detectorUtils}
 	res, err := detector.Detect(context.Background())
 
-	assert.Equal(t, errCannotReadContainerID, err)
-	assert.Equal(t, 0, len(res.Attributes()))
+	assert.Equal(t, nil, err)
+	assert.Equal(t, expectedResource, res, "Resource returned is incorrect")
 }
 
 // returns empty resource when detector cannot read container Name.

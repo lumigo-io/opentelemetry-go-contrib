@@ -42,7 +42,6 @@ const (
 
 var (
 	empty                                 = resource.Empty()
-	errCannotReadContainerID              = errors.New("failed to read container ID from cGroupFile")
 	errCannotReadContainerName            = errors.New("failed to read hostname")
 	errCannotRetrieveLogsGroupMetadataV4  = errors.New("the ECS Metadata v4 did not return a AwsLogGroup name")
 	errCannotRetrieveLogsStreamMetadataV4 = errors.New("the ECS Metadata v4 did not return a AwsLogStream name")
@@ -193,7 +192,7 @@ func (ecsUtils ecsDetectorUtils) getContainerID() (string, error) {
 			return str[len(str)-containerIDLength:], nil
 		}
 	}
-	return "", errCannotReadContainerID
+	return "", nil
 }
 
 // returns host name reported by the kernel.
