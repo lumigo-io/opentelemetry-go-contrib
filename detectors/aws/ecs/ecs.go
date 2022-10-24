@@ -18,6 +18,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/fs"
 	"net/http"
 	"os"
 	"regexp"
@@ -183,7 +184,7 @@ func (ecsUtils ecsDetectorUtils) getContainerID() (string, error) {
 	}
 
 	if _, err := os.Stat(defaultCgroupPath); err != nil {
-		if errors.Is(err, os.ErrNotExist) {
+		if errors.Is(err, fs.ErrNotExist) {
 			// For example, windows; or when running integration tests outside of a container
 			return "", nil
 		}

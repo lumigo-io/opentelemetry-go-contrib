@@ -87,7 +87,7 @@ func TestDetectV4LaunchTypeEc2(t *testing.T) {
 	detector := ecs.NewResourceDetector()
 	res, err := detector.Detect(context.Background())
 
-	assert.Equal(t, err, nil, "Detector should not fail")
+	assert.Equal(t, nil, err, "Detector should not fail")
 	assert.Equal(t, expectedResource, res, "Resource returned is incorrect")
 }
 
@@ -144,6 +144,6 @@ func TestDetectV4LaunchTypeFargate(t *testing.T) {
 	detector := ecs.NewResourceDetector()
 	res, err := detector.Detect(context.Background())
 
-	assert.Equal(t, err, nil, "Detector should not fail")
+	assert.Equal(t, nil, err, "Detector should not fail")
 	assert.Equal(t, expectedResource, res, "Resource returned is incorrect")
 }
