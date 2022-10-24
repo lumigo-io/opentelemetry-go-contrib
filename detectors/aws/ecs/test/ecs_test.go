@@ -19,6 +19,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -31,7 +32,6 @@ import (
 )
 
 const (
-	metadataV3EnvVar = "ECS_CONTAINER_METADATA_URI"
 	metadataV4EnvVar = "ECS_CONTAINER_METADATA_URI_V4"
 )
 
@@ -82,6 +82,9 @@ func TestDetectV4LaunchTypeEc2(t *testing.T) {
 	detector := ecs.NewResourceDetector()
 	res, err := detector.Detect(context.Background())
 
+	if runtime.GOOS == "windows" {
+		panic("FUCK THIS SHIT")
+	}
 	assert.Equal(t, err, nil, "Detector should not fail")
 	assert.Equal(t, expectedResource, res, "Resource returned is incorrect")
 }
