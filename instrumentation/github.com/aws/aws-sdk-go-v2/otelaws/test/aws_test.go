@@ -151,6 +151,6 @@ func TestAppendMiddlewares(t *testing.T) {
 			assert.Contains(t, attrs, attribute.String("aws.operation", "ChangeResourceRecordSets"))
 		})
 
-		server.Close()
+		srv.Close()
 	}
 }
