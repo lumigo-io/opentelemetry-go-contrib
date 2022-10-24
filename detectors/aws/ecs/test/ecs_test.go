@@ -19,7 +19,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"runtime"
 	"strings"
 	"testing"
 
@@ -44,7 +43,7 @@ func TestDetectV4LaunchTypeEc2(t *testing.T) {
 			if err == nil {
 				_, err = res.Write(content)
 				if err != nil {
-					panic(err)
+					t.Fatal(err)
 				}
 			}
 		} else {
@@ -52,7 +51,7 @@ func TestDetectV4LaunchTypeEc2(t *testing.T) {
 			if err == nil {
 				_, err = res.Write(content)
 				if err != nil {
-					panic(err)
+					t.Fatal(err)
 				}
 			}
 		}
@@ -62,11 +61,17 @@ func TestDetectV4LaunchTypeEc2(t *testing.T) {
 	os.Clearenv()
 	_ = os.Setenv(metadataV4EnvVar, testServer.URL)
 
+	hostname, err := os.Hostname()
+	assert.NoError(t, err, "Error")
+
 	attributes := []attribute.KeyValue{
 		semconv.CloudProviderAWS,
 		semconv.CloudPlatformAWSECS,
-		// semconv.ContainerNameKey.String("container-Name"),
-		// semconv.ContainerIDKey.String("0123456789A"),
+		semconv.ContainerNameKey.String(hostname),
+		// We are not running the test in an actual container,
+		// the container id is tested with mocks of the cgroup
+		// file in the unit tests
+		semconv.ContainerIDKey.String(""),
 		semconv.AWSECSContainerARNKey.String("arn:aws:ecs:us-west-2:111122223333:container/0206b271-b33f-47ab-86c6-a0ba208a70a9"),
 		semconv.AWSECSClusterARNKey.String("arn:aws:ecs:us-west-2:111122223333:cluster/default"),
 		semconv.AWSECSLaunchtypeKey.String("ec2"),
@@ -82,9 +87,6 @@ func TestDetectV4LaunchTypeEc2(t *testing.T) {
 	detector := ecs.NewResourceDetector()
 	res, err := detector.Detect(context.Background())
 
-	if runtime.GOOS == "windows" {
-		panic("FUCK THIS SHIT")
-	}
 	assert.Equal(t, err, nil, "Detector should not fail")
 	assert.Equal(t, expectedResource, res, "Resource returned is incorrect")
 }
@@ -116,11 +118,17 @@ func TestDetectV4LaunchTypeFargate(t *testing.T) {
 	os.Clearenv()
 	_ = os.Setenv(metadataV4EnvVar, testServer.URL)
 
+	hostname, err := os.Hostname()
+	assert.NoError(t, err, "Error")
+
 	attributes := []attribute.KeyValue{
 		semconv.CloudProviderAWS,
 		semconv.CloudPlatformAWSECS,
-		// semconv.ContainerNameKey.String("container-Name"),
-		// semconv.ContainerIDKey.String("0123456789A"),
+		semconv.ContainerNameKey.String(hostname),
+		// We are not running the test in an actual container,
+		// the container id is tested with mocks of the cgroup
+		// file in the unit tests
+		semconv.ContainerIDKey.String(""),
 		semconv.AWSECSContainerARNKey.String("arn:aws:ecs:us-west-2:111122223333:container/05966557-f16c-49cb-9352-24b3a0dcd0e1"),
 		semconv.AWSECSClusterARNKey.String("arn:aws:ecs:us-west-2:111122223333:cluster/default"),
 		semconv.AWSECSLaunchtypeKey.String("fargate"),

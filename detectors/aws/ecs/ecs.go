@@ -21,6 +21,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"runtime"
 	"strings"
 
 	ecsmetadata "github.com/brunoscheufler/aws-ecs-metadata-go"
@@ -83,19 +84,19 @@ func (detector *resourceDetector) Detect(ctx context.Context) (*resource.Resourc
 	if len(metadataURIV3) == 0 && len(metadataURIV4) == 0 {
 		return nil, nil
 	}
-	// hostName, err := detector.utils.getContainerName()
-	// if err != nil {
-	// 	return empty, err
-	// }
-	// containerID, err := detector.utils.getContainerID()
-	// if err != nil {
-	// 	return empty, err
-	// }
+	hostName, err := detector.utils.getContainerName()
+	if err != nil {
+		return empty, err
+	}
+	containerID, err := detector.utils.getContainerID()
+	if err != nil {
+		return empty, err
+	}
 	attributes := []attribute.KeyValue{
 		semconv.CloudProviderAWS,
 		semconv.CloudPlatformAWSECS,
-		// semconv.ContainerNameKey.String(hostName),
-		// semconv.ContainerIDKey.String(containerID),
+		semconv.ContainerNameKey.String(hostName),
+		semconv.ContainerIDKey.String(containerID),
 	}
 
 	if len(metadataURIV4) > 0 {
@@ -176,6 +177,16 @@ func (detector *resourceDetector) getLogsAttributes(metadata *ecsmetadata.Contai
 
 // returns docker container ID from default c group path.
 func (ecsUtils ecsDetectorUtils) getContainerID() (string, error) {
+	if runtime.GOOS != "linux" {
+		// Cgroups are used only under Linux
+		return "", nil
+	}
+
+	if _, err := os.Stat(defaultCgroupPath); errors.Is(err, os.ErrNotExist) {
+		// For example, windows; or when running tests outside of a container
+		return "", nil
+	}
+
 	fileData, err := os.ReadFile(defaultCgroupPath)
 	if err != nil {
 		return "", errCannotReadCGroupFile
