@@ -182,9 +182,13 @@ func (ecsUtils ecsDetectorUtils) getContainerID() (string, error) {
 		return "", nil
 	}
 
-	if _, err := os.Stat(defaultCgroupPath); errors.Is(err, os.ErrNotExist) {
-		// For example, windows; or when running tests outside of a container
-		return "", nil
+	if _, err := os.Stat(defaultCgroupPath); err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			// For example, windows; or when running integration tests outside of a container
+			return "", nil
+		}
+
+		return "", err
 	}
 
 	fileData, err := os.ReadFile(defaultCgroupPath)
