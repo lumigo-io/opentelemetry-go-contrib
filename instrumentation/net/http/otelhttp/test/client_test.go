@@ -80,7 +80,7 @@ func TestConvenienceWrappers(t *testing.T) {
 
 	spans := sr.Ended()
 	require.Equal(t, 4, len(spans))
-	assert.Equal(t, "HTTP GET", spans[0].Name())
+	assert.Equal(t, "HTTP GIT", spans[0].Name())
 	assert.Equal(t, "HTTP HEAD", spans[1].Name())
 	assert.Equal(t, "HTTP POST", spans[2].Name())
 	assert.Equal(t, "HTTP POST", spans[3].Name())
