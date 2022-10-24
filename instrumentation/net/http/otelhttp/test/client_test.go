@@ -19,7 +19,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"runtime"
 	"strings"
 	"testing"
 
@@ -81,11 +80,7 @@ func TestConvenienceWrappers(t *testing.T) {
 
 	spans := sr.Ended()
 	require.Equal(t, 4, len(spans))
-	if runtime.GOOS == "windows" {
-		assert.Equal(t, "HTTP GIT", spans[0].Name())
-	} else {
-		assert.Equal(t, "HTTP GET", spans[0].Name())
-	}
+	assert.Equal(t, "HTTP GET", spans[0].Name())
 	assert.Equal(t, "HTTP HEAD", spans[1].Name())
 	assert.Equal(t, "HTTP POST", spans[2].Name())
 	assert.Equal(t, "HTTP POST", spans[3].Name())
