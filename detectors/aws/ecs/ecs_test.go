@@ -17,10 +17,10 @@ package ecs
 import (
 	"context"
 	"encoding/json"
-	"net/http"
-	"net/http/httptest"
+	// "net/http"
+	// "net/http/httptest"
 	"os"
-	"strings"
+	// "strings"
 	"testing"
 
 	"go.opentelemetry.io/otel/attribute"
