@@ -16,8 +16,14 @@ package ecs
 
 import (
 	"context"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"testing"
+
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/sdk/resource"
+	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -36,6 +42,73 @@ func (detectorUtils *MockDetectorUtils) getContainerID() (string, error) {
 func (detectorUtils *MockDetectorUtils) getContainerName() (string, error) {
 	args := detectorUtils.Called()
 	return args.String(0), args.Error(1)
+}
+
+// successfully returns resource when process is running on Amazon ECS environment
+// with no Metadata v4.
+func TestDetectV3(t *testing.T) {
+	os.Clearenv()
+	_ = os.Setenv(metadataV3EnvVar, "3")
+
+	detectorUtils := new(MockDetectorUtils)
+
+	detectorUtils.On("getContainerName").Return("container-Name", nil)
+	detectorUtils.On("getContainerID").Return("0123456789A", nil)
+
+	attributes := []attribute.KeyValue{
+		semconv.CloudProviderAWS,
+		semconv.CloudPlatformAWSECS,
+		semconv.ContainerNameKey.String("container-Name"),
+		semconv.ContainerIDKey.String("0123456789A"),
+	}
+	expectedResource := resource.NewWithAttributes(semconv.SchemaURL, attributes...)
+	detector := &resourceDetector{utils: detectorUtils}
+	res, _ := detector.Detect(context.Background())
+
+	assert.Equal(t, expectedResource, res, "Resource returned is incorrect")
+}
+
+func TestGoOnWindowsSucks(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if _, err := w.Write([]byte("SUKA")); err != nil {
+			t.Fatal(err)
+		}
+	}))
+	defer ts.Close()
+}
+
+// returns empty resource when detector cannot read container ID.
+func TestDetectCannotReadContainerID(t *testing.T) {
+	os.Clearenv()
+	_ = os.Setenv(metadataV3EnvVar, "3")
+	_ = os.Setenv(metadataV4EnvVar, "4")
+	detectorUtils := new(MockDetectorUtils)
+
+	detectorUtils.On("getContainerName").Return("container-Name", nil)
+	detectorUtils.On("getContainerID").Return("", errCannotReadContainerID)
+
+	detector := &resourceDetector{utils: detectorUtils}
+	res, err := detector.Detect(context.Background())
+
+	assert.Equal(t, errCannotReadContainerID, err)
+	assert.Equal(t, 0, len(res.Attributes()))
+}
+
+// returns empty resource when detector cannot read container Name.
+func TestDetectCannotReadContainerName(t *testing.T) {
+	os.Clearenv()
+	_ = os.Setenv(metadataV3EnvVar, "3")
+	_ = os.Setenv(metadataV4EnvVar, "4")
+	detectorUtils := new(MockDetectorUtils)
+
+	detectorUtils.On("getContainerName").Return("", errCannotReadContainerName)
+	detectorUtils.On("getContainerID").Return("0123456789A", nil)
+
+	detector := &resourceDetector{utils: detectorUtils}
+	res, err := detector.Detect(context.Background())
+
+	assert.Equal(t, errCannotReadContainerName, err)
+	assert.Equal(t, 0, len(res.Attributes()))
 }
 
 // returns empty resource when process is not running ECS.
