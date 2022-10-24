@@ -83,19 +83,19 @@ func (detector *resourceDetector) Detect(ctx context.Context) (*resource.Resourc
 	if len(metadataURIV3) == 0 && len(metadataURIV4) == 0 {
 		return nil, nil
 	}
-	hostName, err := detector.utils.getContainerName()
-	if err != nil {
-		return empty, err
-	}
-	containerID, err := detector.utils.getContainerID()
-	if err != nil {
-		return empty, err
-	}
+	// hostName, err := detector.utils.getContainerName()
+	// if err != nil {
+	// 	return empty, err
+	// }
+	// containerID, err := detector.utils.getContainerID()
+	// if err != nil {
+	// 	return empty, err
+	// }
 	attributes := []attribute.KeyValue{
 		semconv.CloudProviderAWS,
 		semconv.CloudPlatformAWSECS,
-		semconv.ContainerNameKey.String(hostName),
-		semconv.ContainerIDKey.String(containerID),
+		// semconv.ContainerNameKey.String(hostName),
+		// semconv.ContainerIDKey.String(containerID),
 	}
 
 	if len(metadataURIV4) > 0 {
