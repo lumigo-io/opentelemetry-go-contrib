@@ -18,7 +18,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io/fs"
 	"net/http"
 	"os"
 	"regexp"
@@ -45,7 +44,6 @@ var (
 	empty                                 = resource.Empty()
 	errCannotReadContainerID              = errors.New("failed to read container ID from cGroupFile")
 	errCannotReadContainerName            = errors.New("failed to read hostname")
-	errCannotReadCGroupFile               = errors.New("the ECS resource detector failed to read cGroupFile")
 	errCannotRetrieveLogsGroupMetadataV4  = errors.New("the ECS Metadata v4 did not return a AwsLogGroup name")
 	errCannotRetrieveLogsStreamMetadataV4 = errors.New("the ECS Metadata v4 did not return a AwsLogStream name")
 )
@@ -179,22 +177,15 @@ func (detector *resourceDetector) getLogsAttributes(metadata *ecsmetadata.Contai
 // returns docker container ID from default c group path.
 func (ecsUtils ecsDetectorUtils) getContainerID() (string, error) {
 	if runtime.GOOS != "linux" {
-		// Cgroups are used only under Linux
+		// Cgroups are used only under Linux.
 		return "", nil
-	}
-
-	if _, err := os.Stat(defaultCgroupPath); err != nil {
-		if errors.Is(err, fs.ErrNotExist) {
-			// For example, windows; or when running integration tests outside of a container
-			return "", nil
-		}
-
-		return "", err
 	}
 
 	fileData, err := os.ReadFile(defaultCgroupPath)
 	if err != nil {
-		return "", errCannotReadCGroupFile
+		// Cgroups file not found.
+		// For example, windows; or when running integration tests outside of a container.
+		return "", nil
 	}
 	splitData := strings.Split(strings.TrimSpace(string(fileData)), "\n")
 	for _, str := range splitData {
